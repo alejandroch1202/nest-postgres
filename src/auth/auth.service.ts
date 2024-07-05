@@ -44,7 +44,7 @@ export class AuthService {
     const { email, password } = loginUserDto;
     const user = await this.userRepository.findOne({
       where: { email },
-      select: { email: true, password: true },
+      select: { id: true, email: true, password: true },
     });
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -53,7 +53,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
     delete user.password;
-    return { ...user, token: this.getJwtToken({ email: user.email }) };
+    return { token: this.getJwtToken({ sub: user.id }) };
   }
 
   private getJwtToken(payload: JwtPayload) {
