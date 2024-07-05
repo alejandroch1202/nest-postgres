@@ -1,3 +1,5 @@
+import { hashPassword } from 'src/auth/helpers/auth.helper';
+
 interface SeedProduct {
   description: string;
   images: string[];
@@ -14,11 +16,28 @@ interface SeedProduct {
 type ValidSizes = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'XXXL';
 type ValidTypes = 'shirts' | 'pants' | 'hoodies' | 'hats';
 
+interface SeedUser {
+  name: string;
+  email: string;
+  password: string;
+  role: string[];
+}
+
 interface SeedData {
+  users: SeedUser[];
   products: SeedProduct[];
 }
 
 export const initialData: SeedData = {
+  users: [
+    {
+      name: 'test',
+      email: 'test@me.com',
+      password: hashPassword('Admin123'),
+      role: ['admin', 'super'],
+    },
+  ],
+
   products: [
     {
       description:
