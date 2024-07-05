@@ -7,10 +7,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { comparePassword, hashPassword } from './helpers/auth.helper';
 import { LoginUserDto } from './dto/login-user.dto';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -19,12 +21,14 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    private readonly jwtService: JwtService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
     try {
       const { password, ...userData } = createUserDto;
-      const user = await this.userRepository.save({
+      const user = await this.userRepository.create({
         ...userData,
         password: hashPassword(password),
       });
@@ -38,21 +42,23 @@ export class AuthService {
 
   async login(loginUserDto: LoginUserDto) {
     const { email, password } = loginUserDto;
-
     const user = await this.userRepository.findOne({
       where: { email },
       select: { email: true, password: true },
     });
-
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-
     if (!comparePassword(password, user.password)) {
       throw new UnauthorizedException('Invalid credentials');
     }
+    delete user.password;
+    return { ...user, token: this.getJwtToken({ email: user.email }) };
+  }
 
-    return user;
+  private getJwtToken(payload: JwtPayload) {
+    const token = this.jwtService.sign(payload);
+    return token;
   }
 
   private handleDatabaseExceptions(error: any) {
