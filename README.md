@@ -18,14 +18,14 @@
 docker-compose up -d
 ```
 
-6. Ejecutar el seed
-
-```
-http://localhost:3000/api/v1/seed
-```
-
-7. Levantar el servidor de desarrollo
+6. Levantar el servidor de desarrollo
 
 ```
 yarn start:dev
+```
+
+7. Ejecutar el seed
+
+```
+http://localhost:3000/api/v1/seed
 ```
